@@ -14,10 +14,16 @@ namespace gameSafe
         public Position pos;
         public int i;
         public int j;
+        int width;
+        int height;
+        int padding;
 
-        public Lever(Button btn, Position pos, int i, int j)
+        public Lever(Button btn, int width, int height, int padding, Position pos, int i, int j)
         {
             this.btn = btn;
+            this.width = width;
+            this.height = height;
+            this.padding = padding;
             this.pos = pos;
             this.i = i;
             this.j = j;
@@ -28,29 +34,29 @@ namespace gameSafe
         {
             if (pos == Position.Horizontal)
             {
-                btn.Size = new Size(50, 10);
-                btn.Location = new Point(50 * i, j * 50);
+                btn.Size = new Size(width, height);
+
+                btn.Location = new Point(width * i + padding, j * width + padding);
             }
             else if (pos == Position.Vertical)
             {
-                btn.Size = new Size(10, 50);
-                btn.Location = new Point(50 * i + 25, j * 50 - 25);
+                btn.Size = new Size(height, width);
+                btn.Location = new Point(width * i + padding + (width - padding) / 2, j * width + padding - (width - padding) / 2);
             }
         }
 
         public void changeBtn()
         {
-            //MessageBox.Show(i + " " + j);
             if (pos == Position.Horizontal)
             {
-                btn.Size = new Size(10, 50);
-                btn.Location = new Point(50 * i + 25, j * 50 - 25);
+                btn.Size = new Size(height, width);
+                btn.Location = new Point(width * i + padding + (width - padding) / 2, j * width + padding - (width - padding) / 2);
                 pos = Position.Vertical;
             }
             else if (pos == Position.Vertical)
             {
-                btn.Size = new Size(50, 10);
-                btn.Location = new Point(50 * i, j * 50);
+                btn.Size = new Size(width, height);
+                btn.Location = new Point(width * i + padding, j * width + padding);
                 pos = Position.Horizontal;
             }
         }

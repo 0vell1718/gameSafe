@@ -15,13 +15,18 @@ namespace gameSafe
         List<Lever> levers = new List<Lever>();
         Random rnd = new Random();
         int N;
+        int heightOfLever = 16;
 
+        DateTime start = new DateTime();
+        DateTime end = new DateTime();
+        int Step = 0;
+        
         public Form1()
         {
             InitializeComponent();
         }
 
-        public void AddLevers()
+        public void addLevers()
         {
             clearLevers();
 
@@ -52,7 +57,7 @@ namespace gameSafe
                 for (int j = 1; j <= N; j++)
                 {
                     Button btn = new Button();
-                    Lever lv = new Lever(btn, pos, i, j);
+                    Lever lv = new Lever(btn, widthOfLever(), heightOfLever, paddingOfLever(), pos, i, j);
                     levers.Add(lv);
                     Controls.Add(btn);
                     btn.Click += new EventHandler(btnClick);
@@ -77,10 +82,12 @@ namespace gameSafe
             
             for(int i=0; i < comboBox1.SelectedIndex + 1; i++)
             {
-                int n = rnd.Next(0, levers.Count() + 1);
+                int n = rnd.Next(0, levers.Count());
                 Lever changeLever = levers[n];
                 changeLever.btn.PerformClick();
-            }       
+                Step--;
+            }
+            start = DateTime.Now;
         }
 
         public bool onePosition()
@@ -93,29 +100,11 @@ namespace gameSafe
             }
             return true;
         }
-
-        void btnClick(object sender, EventArgs e)
-        {
-            Button bt = (Button)sender;
-            foreach (Lever item in levers)
-            {
-                if (item.btn == bt)
-                {
-                    foreach (Lever changeLever in levers)
-                    {
-                        if (changeLever.i == item.i || changeLever.j == item.j)
-                            changeLever.changeBtn();
-                    }
-                    if (onePosition())
-                        Win();
-                    return;
-                }
-            }        
-        }
-
+        
         public void Win()
         {
-            string message = "Поздравляем, Вы открыли сейф! Начать новую игру(OK) или выйти(Отмена)?";
+            string message = "Поздравляем, Вы открыли сейф! \nКоличество шагов : " + Step
+                 + "\tВремя: " + (end - start).TotalSeconds + "\nНачать новую игру(OK) или выйти(Отмена)?";
             string caption = "Победа!";
             MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
             DialogResult result;
@@ -132,9 +121,43 @@ namespace gameSafe
             }
         }
 
+        public int widthOfLever()
+        {
+            return (500 / (N + 1)) - paddingOfLever();
+        }
+
+        public int paddingOfLever()
+        {
+            int i = ((500 / 5) / (N + 1));
+            return i;
+        }
+
+        void btnClick(object sender, EventArgs e)
+        {
+            Step++;
+            Button bt = (Button)sender;
+            foreach (Lever item in levers)
+            {
+                if (item.btn == bt)
+                {
+                    foreach (Lever changeLever in levers)
+                    {
+                        if (changeLever.i == item.i || changeLever.j == item.j)
+                            changeLever.changeBtn();
+                    }
+                    if (onePosition())
+                    {
+                        end = DateTime.Now;
+                        Win();
+                    }
+                    return;
+                }
+            }
+        }
+
         private void infoBtn_Click(object sender, EventArgs e)
         {
-            AddLevers(); 
+            addLevers(); 
         }
     }
 }
