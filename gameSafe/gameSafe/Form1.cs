@@ -21,27 +21,77 @@ namespace gameSafe
             InitializeComponent();
         }
 
-        public void AddLever()
+        public void AddLevers()
         {
-            //int r = rnd.Next(1, 3);
-            Position pos = Position.Horizontal;
+            clearLevers();
 
-            //if (r == 2)
-            //    pos = Position.Vertical;
+            try
+            {
+                N = Convert.ToInt32(infoTbx.Text);
+                if (N < 2 || N > 10)
+                {
+                    MessageBox.Show("Введите N в диапазоне от 2 до 10");
+                    return;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Введите целое число!");
+                return;
+            }
+
+            int r = rnd.Next(1, 3);
+            Position pos;
+            if (r == 1)
+                pos = Position.Horizontal;
+            else
+                pos = Position.Vertical;
 
             for (int i = 1; i <= N; i++)
             {
                 for (int j = 1; j <= N; j++)
                 {
                     Button btn = new Button();
-                    btn.Size = new Size(50, 10);
-                    btn.Location = new Point(50 * i, 50 * j);
                     Lever lv = new Lever(btn, pos, i, j);
                     levers.Add(lv);
                     Controls.Add(btn);
                     btn.Click += new EventHandler(btnClick);
                 }
             }
+
+            сreateGameLevel();
+        }
+
+        public void clearLevers()
+        {
+            foreach (Lever item in levers)
+            {
+                Controls.Remove(item.btn);
+            }
+            levers.Clear();
+        }
+
+        public void сreateGameLevel()
+        {
+            int difficultyLevel = comboBox1.SelectedIndex + 1;
+            
+            for(int i=0; i < comboBox1.SelectedIndex + 1; i++)
+            {
+                int n = rnd.Next(0, levers.Count() + 1);
+                Lever changeLever = levers[n];
+                changeLever.btn.PerformClick();
+            }       
+        }
+
+        public bool onePosition()
+        {
+            Lever lv = levers.First();
+            foreach (Lever item in levers)
+            {
+                if (lv.pos != item.pos)
+                    return false;
+            }
+            return true;
         }
 
         void btnClick(object sender, EventArgs e)
@@ -56,72 +106,35 @@ namespace gameSafe
                         if (changeLever.i == item.i || changeLever.j == item.j)
                             changeLever.changeBtn();
                     }
+                    if (onePosition())
+                        Win();
                     return;
                 }
+            }        
+        }
+
+        public void Win()
+        {
+            string message = "Поздравляем, Вы открыли сейф! Начать новую игру(OK) или выйти(Отмена)?";
+            string caption = "Победа!";
+            MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
+            DialogResult result;
+
+            result = MessageBox.Show(message, caption, buttons);
+            if (result == DialogResult.OK)
+            {
+                clearLevers();
+                infoTbx.SelectAll();
+            }
+            else if(result == DialogResult.Cancel)
+            {
+                this.Close();
             }
         }
 
         private void infoBtn_Click(object sender, EventArgs e)
         {
-            try
-            {
-                N = Convert.ToInt32(infoTbx.Text);
-                if (N > 1 && N <= 10)
-                {
-                    Controls.Remove(infoTbx);
-                    Controls.Remove(infoLbl);
-                    Controls.Remove(infoBtn);
-
-                    AddLever();
-                }
-                else
-                    MessageBox.Show("Введите N в диапазоне от 1 до 10");
-            }
-            catch
-            {
-                MessageBox.Show("Введите целое число!");
-            }          
+            AddLevers(); 
         }
-
-
-    }
-
-    public class Lever
-    {
-        public Button btn;
-        public Position pos;
-        public int i;
-        public int j;
-
-        public Lever(Button btn, Position pos, int i, int j)
-        {
-            this.btn = btn;
-            this.pos = pos;
-            this.i = i;
-            this.j = j;
-        }
-
-        public void changeBtn()
-        {
-            //MessageBox.Show(i + " " + j);
-            if(pos == Position.Horizontal)
-            {
-                btn.Size = new Size(10, 50);
-                btn.Location = new Point(50 * i + 25, j * 50 - 25);
-                pos = Position.Vertical;
-            }
-            else if(pos == Position.Vertical)
-            {
-                btn.Size = new Size(50, 10);
-                btn.Location = new Point(50 * i, j * 50);
-                pos = Position.Horizontal;
-            }
-        }
-    }
-
-    public enum Position
-    {
-        Horizontal,
-        Vertical
     }
 }
